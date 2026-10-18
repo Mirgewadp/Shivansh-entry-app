@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>मिरगेवाड - डॅशबोर्ड</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 0; display: flex; }
+        
+        .sidebar {
+            width: 240px;
+            background-color: #0088cc;
+            color: white;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding-top: 20px;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        .sidebar.collapsed { margin-left: -240px; }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px 15px 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            margin-bottom: 10px;
+        }
+        .sidebar-title { font-size: 16px; font-weight: bold; }
+        .toggle-btn { background: none; border: none; color: white; font-size: 20px; cursor: pointer; }
+
+        .sidebar .nav-btn, .sidebar a {
+            background-color: transparent;
+            color: white;
+            padding: 12px 20px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            border: none;
+            text-align: left;
+            cursor: pointer;
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .sidebar .nav-btn:hover, .sidebar a:hover { background-color: #006699; }
+
+        .main-content {
+            margin-left: 240px;
+            padding: 20px;
+            width: calc(100% - 240px);
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+        .main-content.expanded { margin-left: 0; width: 100%; }
+
+        .top-header {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .welcome-title { font-size: 18px; font-weight: bold; color: #0088cc; display: flex; align-items: center; gap: 15px; }
+        .menu-open-btn {
+            background-color: #0088cc;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            display: none;
+        }
+
+        /* फ्लॅश मेसेज स्टाइल */
+        .flash-message {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 10px 18px;
+            border-radius: 6px;
+            border: 1px solid #c3e6cb;
+            font-weight: bold;
+            font-size: 14px;
+            margin-right: 15px;
+            display: inline-block;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: opacity 0.5s ease;
+        }
+
+        .profile-wrapper { display: flex; align-items: center; gap: 10px; }
+        .profile-container { position: relative; display: inline-block; }
+        .profile-btn {
+            background-color: #005580;
+            color: white;
+            border: none;
+            padding: 6px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+        }
+        .profile-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 40px;
+            background-color: white;
+            color: #333;
+            width: 260px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            border-radius: 8px;
+            padding: 15px;
+            z-index: 100;
+            text-align: center;
+        }
+        .profile-pic-container {
+            position: relative;
+            width: 90px;
+            height: 90px;
+            margin: 0 auto 10px auto;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid #0088cc;
+            cursor: pointer;
+        }
+        .profile-pic { width: 100%; height: 100%; object-fit: cover; }
+        .upload-pic-label {
+            position: absolute;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            width: 100%;
+            font-size: 11px;
+            text-align: center;
+            padding: 3px 0;
+        }
+        .profile-dropdown p { margin: 6px 0; font-size: 13px; text-align: left; word-break: break-all; }
+
+        .search-card, .form-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .search-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .search-input {
+            flex: 1;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        .btn-search-blue {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .btn-reset-grey {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .filter-group { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+        .filter-btn {
+            background-color: #e9ecef;
+            border: 1px solid #ced4da;
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .filter-btn.active { background-color: #0088cc; color: white; border-color: #0088cc; }
+
+        .form-card { max-width: 400px; display: none; }
+        .table-section { display: none; }
+
+        .table-header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .download-action-btns { display: flex; gap: 10px; }
+        .action-dl-btn {
+            padding: 6px 12px;
+            font-size: 13px;
+            font-weight: bold;
+            border-radius: 6px;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+        }
+        .btn-pdf { background-color: #dc3545; color: white; }
+        .btn-excel { background-color: #28a745; color: white; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-top: 10px;
+        }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; font-size: 14px; }
+        th { background-color: #00bcd4; color: white; }
+        .total-row { font-weight: bold; background-color: #f9f9f9; }
+        .btn-action { text-decoration: none; padding: 4px 8px; border-radius: 4px; font-size: 12px; color: white; }
+        .btn-edit { background-color: #ffc107; color: black; }
+        .btn-delete { background-color: #dc3545; }
+        .submit-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px;
+            font-size: 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+        }
+        .form-group { margin-bottom: 12px; }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+
+        @media print {
+            body { background: white; }
+            .sidebar, .top-header, .search-card, .form-card, .btn-action, th:nth-child(9), td:nth-child(9) { display: none !important; }
+            .main-content { margin-left: 0 !important; width: 100% !important; padding: 0 !important; }
+            .table-section { display: block !important; }
+            table { box-shadow: none !important; width: 100% !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <span class="sidebar-title">मेनू (Menu)</span>
+            <button class="toggle-btn" onclick="toggleSidebar()">◀</button>
+        </div>
+        <button class="nav-btn" onclick="showHome()">🏠 Home Page</button>
+        <button class="nav-btn" onclick="showNewEntry()">➕ New Entry</button>
+        <button class="nav-btn" onclick="window.print()">📄 PDF / Print</button>
+        <button class="nav-btn" onclick="exportTableToExcel()">📊 Excel Download</button>
+        <button class="nav-btn" onclick="document.getElementById('excelUploadInput').click()">📁 Excel Upload</button>
+        <a href="/logout" style="color: #ffcccc; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 15px;">🚪 Logout</a>
+        
+        <form id="uploadForm" action="/upload_excel" method="POST" enctype="multipart/form-data" style="display:none;">
+            <input type="file" id="excelUploadInput" name="file" accept=".xlsx, .xls" onchange="document.getElementById('uploadForm').submit()">
+        </form>
+    </div>
+
+    <div class="main-content" id="mainContent">
+
+        <div class="top-header">
+            <div class="welcome-title">
+                <button class="menu-open-btn" id="menuOpenBtn" onclick="toggleSidebar()">☰ मेनू</button>
+                <span>🙏🙏💐 Welcome Parmeshwar Mirgewad 💐💐</span>
+            </div>
+
+            <!-- प्रोफाईलच्या बाजूला यशस्वी मेसेज आणि प्रोफाईल बटण -->
+            <div class="profile-wrapper">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="flash-message">
+                                ✅ {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <div class="profile-container">
+                    <button class="profile-btn" onclick="toggleProfile()">Profile 👤</button>
+                    <div class="profile-dropdown" id="profileMenu">
+                        <form id="profilePicForm" action="/upload_profile_pic" method="POST" enctype="multipart/form-data">
+                            <div class="profile-pic-container" onclick="document.getElementById('uploadProfilePic').click();">
+                                <img id="profileImage" src="{{ profile_pic }}" alt="Profile" class="profile-pic">
+                                <div class="upload-pic-label">📷 फोटो बदला</div>
+                            </div>
+                            <input type="file" id="uploadProfilePic" name="profile_pic" accept="image/*" style="display:none;" onchange="document.getElementById('profilePicForm').submit();">
+                        </form>
+                        <p><strong>Name:</strong> Mirgewad Parmeshwar</p>
+                        <p><strong>Mobile:</strong> 9552476137</p>
+                        <p><strong>Email:</strong> pamamirge1990@gmail.com</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="search-card">
+            <h3>शोधा (Search & Filters)</h3>
+            <div class="search-row">
+                <input type="text" id="searchInput" class="search-input" placeholder="व्यक्तीचे नाव किंवा मोबाईल नंबर टाका...">
+                <button class="btn-search-blue" onclick="performSearch()">सर्च करा</button>
+                <button class="btn-reset-grey" onclick="resetSearch()">रिसेट करा</button>
+            </div>
+            
+            <div class="filter-group">
+                <button class="filter-btn active" onclick="filterPeriod('all', this)">सर्व कालावधी</button>
+                <button class="filter-btn" onclick="filterPeriod('week', this)">या आठवड्याचे</button>
+                <button class="filter-btn" onclick="filterPeriod('month', this)">या महिन्याचे</button>
+                <button class="filter-btn" onclick="filterPeriod('year', this)">या वर्षाचे</button>
+            </div>
+            
+            <div class="filter-group">
+                <button class="filter-btn active" onclick="filterStatus('all', this)">सर्व नोंदी</button>
+                <button class="filter-btn" onclick="filterStatus('pending', this)">फक्त पेंडिंग रक्कम (Pending)</button>
+                <button class="filter-btn" onclick="filterStatus('credit', this)">फक्त जमा रक्कम (Credit)</button>
+            </div>
+        </div>
+
+        <div class="form-card" id="newEntryForm">
+            <h2>नवीन नोंद (New Entry)</h2>
+            <form action="/add" method="POST">
+                <div class="form-group">
+                    <input type="text" name="name" placeholder="व्यक्तीचे नाव (Name)" required>
+                </div>
+                <div class="form-group">
+                    <input type="text" name="mobile" placeholder="मोबाईल नंबर (Mobile Number)">
+                </div>
+                <div class="form-group">
+                    <input type="text" name="type_of_work" placeholder="कामाचा प्रकार (Type of Work)" required>
+                </div>
+                <div class="form-group">
+                    <input type="number" step="0.01" name="pending_amount" placeholder="पेंडिंग रक्कम (Pending)" value="0">
+                </div>
+                <div class="form-group">
+                    <input type="number" step="0.01" name="credit_amount" placeholder="जमा रक्कम (Credit)" value="0">
+                </div>
+                <div class="form-group">
+                    <select name="payment_mode" required>
+                        <option value="" disabled selected>जमेचा प्रकार निवडा</option>
+                        <option value="Cash">Cash (नकद)</option>
+                        <option value="PhonePe/GPay">PhonePe / GPay / UPI</option>
+                        <option value="Bank Transfer">Bank Transfer</option>
+                    </select>
+                </div>
+                <button type="submit" class="submit-btn">माहिती सेव करा</button>
+            </form>
+        </div>
+
+        <div class="table-section" id="tableSection">
+            <div class="table-header-bar">
+                <h2 style="margin: 0;">नोंदींची यादी (Entries Table)</h2>
+                <div class="download-action-btns">
+                    <button class="action-dl-btn btn-pdf" onclick="window.print()">📄 PDF / Print</button>
+                    <button class="action-dl-btn btn-excel" onclick="exportTableToExcel()">📊 Excel Download</button>
+                </div>
+            </div>
+
+            <table id="entriesTable">
+                <thead>
+                    <tr>
+                        <th>अ.क्र. (ID)</th>
+                        <th>दिनांक (Date)</th>
+                        <th>नाव (Name)</th>
+                        <th>मोबाईल नंबर</th>
+                        <th>कामाचा प्रकार</th>
+                        <th>पेंडिंग रक्कम</th>
+                        <th>जमा रक्कम</th>
+                        <th>जमेचा प्रकार</th>
+                        <th>कृती (Action)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if entries %}
+                        {% for row in entries %}
+                        <tr data-date="{{ row[1] }}" data-pending="{{ row[5] }}" data-credit="{{ row[6] }}">
+                            <td>{{ row[0] }}</td>
+                            <td>{{ row[1] }}</td>
+                            <td>{{ row[2] }}</td>
+                            <td>{{ row[3] if row[3] else '-' }}</td>
+                            <td>{{ row[4] }}</td>
+                            <td>{{ row[5] }}</td>
+                            <td>{{ row[6] }}</td>
+                            <td>{{ row[7] if row[7] else '-' }}</td>
+                            <td>
+                                {% if row[3] %}
+                                    <a href="https://api.whatsapp.com/send?phone=91{{ row[3] }}&text=नमस्कार%20{{ row[2] }},%20तुमची%20पेंडिंग%20रक्कम:%20{{ row[5] }}%20व%20जमा%20रक्कम:%20{{ row[6] }}%20आहे." target="_blank" class="nav-btn" style="padding: 2px 6px; background-color:#25d366; color:white; font-size:11px; display:inline-block;">WA 💬</a>
+                                {% endif %}
+                                <a href="/edit/{{ row[0] }}" class="btn-action btn-edit">एडिट (Edit)</a>
+                                <a href="/delete/{{ row[0] }}" class="btn-action btn-delete" onclick="return confirm('नोंद हटवायची का?')">डिलीट (Delete)</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="9" style="text-align:center;">कोणतीही नोंद सापडली नाही</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+                <tfoot>
+                    <tr class="total-row">
+                        <td colspan="5" style="text-align: right; color: #0088cc;">एकूण बेरीज (Total):</td>
+                        <td style="color: #0088cc;">{{ total_pending }}</td>
+                        <td style="color: #0088cc;">{{ total_credit }}</td>
+                        <td colspan="2"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+    </div>
+
+    <script>
+        // फ्लॅश मेसेज ३ सेकंदांनंतर आपोआप गायब करण्यासाठी
+        setTimeout(function() {
+            let flashMsg = document.querySelector('.flash-message');
+            if (flashMsg) {
+                flashMsg.style.opacity = "0";
+                setTimeout(function() {
+                    flashMsg.style.display = "none";
+                }, 500);
+            }
+        }, 3000);
+
+        let currentPeriod = 'all';
+        let currentStatus = 'all';
+
+        function toggleSidebar() {
+            var sidebar = document.getElementById("sidebar");
+            var mainContent = document.getElementById("mainContent");
+            var openBtn = document.getElementById("menuOpenBtn");
+
+            sidebar.classList.toggle("collapsed");
+            mainContent.classList.toggle("expanded");
+
+            if (sidebar.classList.contains("collapsed")) {
+                openBtn.style.display = "inline-block";
+            } else {
+                openBtn.style.display = "none";
+            }
+        }
+
+        function toggleProfile() {
+            var menu = document.getElementById("profileMenu");
+            menu.style.display = (menu.style.display === "block") ? "none" : "block";
+        }
+
+        function showHome() {
+            document.getElementById("newEntryForm").style.display = "none";
+            document.getElementById("tableSection").style.display = "none";
+            document.getElementById("searchInput").value = "";
+        }
+
+        function showNewEntry() {
+            var form = document.getElementById("newEntryForm");
+            var table = document.getElementById("tableSection");
+            
+            form.style.display = "block";
+            table.style.display = "block";
+            form.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function performSearch() {
+            var input = document.getElementById("searchInput").value.toLowerCase().trim();
+            var tableSection = document.getElementById("tableSection");
+
+            if (input.length > 0) {
+                tableSection.style.display = "block";
+                applyFilters();
+            } else {
+                alert("कृपया नाव किंवा मोबाईल नंबर टाका!");
+            }
+        }
+
+        function resetSearch() {
+            document.getElementById("searchInput").value = "";
+            document.getElementById("tableSection").style.display = "none";
+        }
+
+        function filterPeriod(period, btn) {
+            currentPeriod = period;
+            setActiveBtn(btn);
+            document.getElementById("tableSection").style.display = "block";
+            applyFilters();
+        }
+
+        function filterStatus(status, btn) {
+            currentStatus = status;
+            setActiveBtn(btn);
+            document.getElementById("tableSection").style.display = "block";
+            applyFilters();
+        }
+
+        function setActiveBtn(btn) {
+            let siblings = btn.parentElement.children;
+            for (let i = 0; i < siblings.length; i++) {
+                siblings[i].classList.remove('active');
+            }
+            btn.classList.add('active');
+        }
+
+        function applyFilters() {
+            var input = document.getElementById("searchInput").value.toLowerCase().trim();
+            var rows = document.querySelectorAll("#entriesTable tbody tr");
+            var now = new Date();
+
+            rows.forEach(function(row) {
+                var nameCol = row.getElementsByTagName("td")[2];
+                var mobileCol = row.getElementsByTagName("td")[3];
+                var dateStr = row.getAttribute('data-date');
+                var pending = parseFloat(row.getAttribute('data-pending')) || 0;
+                var credit = parseFloat(row.getAttribute('data-credit')) || 0;
+
+                var matchesSearch = true;
+                if (input.length > 0 && nameCol && mobileCol) {
+                    var nameText = (nameCol.textContent || nameCol.innerText).toLowerCase();
+                    var mobileText = (mobileCol.textContent || mobileCol.innerText).toLowerCase();
+                    matchesSearch = nameText.includes(input) || mobileText.includes(input);
+                }
+
+                var matchesStatus = true;
+                if (currentStatus === 'pending') matchesStatus = pending > 0;
+                if (currentStatus === 'credit') matchesStatus = credit > 0;
+
+                var matchesPeriod = true;
+                if (dateStr && currentPeriod !== 'all') {
+                    var entryDate = new Date(dateStr);
+                    var diffTime = Math.abs(now - entryDate);
+                    var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                    if (currentPeriod === 'week') matchesPeriod = (diffDays <= 7);
+                    if (currentPeriod === 'month') matchesPeriod = (diffDays <= 30);
+                    if (currentPeriod === 'year') matchesPeriod = (diffDays <= 365);
+                }
+
+                if (matchesSearch && matchesStatus && matchesPeriod) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
+        }
+
+        function exportTableToExcel() {
+            var rows = document.querySelectorAll("#entriesTable tr");
+            var csv = [];
+            
+            rows.forEach(function(row) {
+                if (row.style.display !== "none" || row.parentElement.tagName === "THEAD" || row.classList.contains("total-row")) {
+                    var cols = row.querySelectorAll("th, td");
+                    var data = [];
+                    for (var i = 0; i < cols.length - 1; i++) {
+                        data.push('"' + cols[i].innerText.replace(/"/g, '""') + '"');
+                    }
+                    csv.push(data.join(","));
+                }
+            });
+            
+            var csvFile = new Blob(["\uFEFF" + csv.join("\n")], { type: "text/csv;charset=utf-8;" });
+            var downloadLink = document.createElement("a");
+            downloadLink.download = "searched_entries_report.csv";
+            downloadLink.href = window.URL.createObjectURL(csvFile);
+            downloadLink.style.display = "none";
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        }
+    </script>
+
+</body>
+</html>
