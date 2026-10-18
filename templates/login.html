@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Mirgewad Portal</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f6f9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .login-card { background: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); width: 340px; text-align: center; }
+        .login-card h2 { margin-bottom: 20px; color: #333; border-bottom: 2px solid #333; display: inline-block; padding-bottom: 5px; }
+        .form-group { margin-bottom: 15px; text-align: left; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        .form-group input { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 6px; }
+        .btn-submit { width: 100%; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; margin-top: 10px; }
+        .btn-submit:hover { background-color: #0056b3; }
+        .forgot-link { display: block; margin-top: 15px; color: #007bff; text-decoration: none; font-size: 14px; cursor: pointer; }
+        .msg { color: green; margin-bottom: 15px; }
+        .error-msg { color: red; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <h2>Mirgewad</h2>
+
+        {% if msg %}
+            <p class="msg">{{ msg }}</p>
+        {% endif %}
+        {% if error %}
+            <p class="error-msg">{{ error }}</p>
+        {% endif %}
+
+        <form action="/login" method="POST">
+            <div class="form-group">
+                <label>User ID</label>
+                <input type="text" name="user_id" placeholder="User ID टाका" required>
+            </div>
+            
+            <div class="form-group">
+                <label>User Name</label>
+                <input type="text" name="username" placeholder="User Name टाका" required>
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password" placeholder="Password टाका" required>
+            </div>
+
+            <button type="submit" class="btn-submit">Submit</button>
+        </form>
+
+        <a href="/forgot" class="forgot-link">Forgot Password?</a>
+    </div>
+
+</body>
+</html>
