@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+    <meta charset="UTF-8">
+    <title>माहिती संपादन करा (Edit Entry)</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f6f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px 0; }
+        .edit-card { background: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); width: 360px; }
+        .edit-card h2 { text-align: center; margin-bottom: 20px; color: #333; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+        .btn-submit { width: 100%; padding: 12px; background-color: #17a2b8; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; margin-top: 10px; font-weight: bold; }
+        .btn-submit:hover { background-color: #138496; }
+        .btn-cancel { display: block; text-align: center; margin-top: 15px; color: #6c757d; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="edit-card">
+        <!-- सुरुवातीला फ्लॅश मेसेज स्क्रीनच्या वर दाखवण्यासाठी -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div style="background-color: #d4edda; color: #155724; padding: 12px 20px; border-radius: 6px; margin-bottom: 20px; border: 1px solid #c3e6cb; font-weight: bold; text-align: center;">
+                        ✅ {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <h2>नोंद अपडेट करा</h2>
+
+        <form action="/update/{{ entry[0] }}" method="POST">
+            <div class="form-group">
+                <label>व्यक्तीचे नाव (Name)</label>
+                <input type="text" name="name" value="{{ entry[2] }}" required>
+            </div>
+
+            <div class="form-group">
+                <label>मोबाईल नंबर (Mobile Number)</label>
+                <input type="tel" name="mobile" value="{{ entry[3] }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label>कामाचा प्रकार (Type of Work)</label>
+                <input type="text" name="type_of_work" value="{{ entry[4] }}" required>
+            </div>
+
+            <div class="form-group">
+                <label>पेंडिंग रक्कम (Pending)</label>
+                <input type="number" step="0.01" name="pending_amount" value="{{ entry[5] }}" required>
+            </div>
+
+            <div class="form-group">
+                <label>जमा रक्कम (Credit)</label>
+                <input type="number" step="0.01" name="credit_amount" value="{{ entry[6] }}" required>
+            </div>
+
+            <div class="form-group">
+                <label>जमेचा प्रकार (Payment Mode)</label>
+                <select name="payment_mode" required>
+                    <option value="Cash" {% if entry[7] == 'Cash' %}selected{% endif %}>कॅश (Cash)</option>
+                    <option value="Online" {% if entry[7] == 'Online' %}selected{% endif %}>ऑनलाइन (Online)</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn-submit">माहिती अपडेट करा</button>
+        </form>
+
+        <a href="/dashboard" class="btn-cancel">रद्द करा (Cancel)</a>
+    </div>
+
+</body>
+</html>
