@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+    <meta charset="UTF-8">
+    <title>Forgot Password - Mirgewad Portal</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f6f9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .login-card { background: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); width: 340px; text-align: center; }
+        .login-card h2 { margin-bottom: 20px; color: #333; }
+        .form-group { margin-bottom: 15px; text-align: left; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        .form-group input { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 6px; }
+        .btn-submit { width: 100%; padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; margin-top: 10px; }
+        .msg { color: green; font-weight: bold; margin-bottom: 15px; }
+        .error-msg { color: red; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <h2>Forgot Password</h2>
+
+        {% if msg %}
+            <p class="msg">{{ msg }}</p>
+        {% endif %}
+        {% if error %}
+            <p class="error-msg">{{ error }}</p>
+        {% endif %}
+
+        {% if step == 'send_otp' %}
+        <form action="/send-otp" method="POST">
+            <div class="form-group">
+                <label>मोबाईल नंबर (Mobile)</label>
+                <input type="text" name="mobile" placeholder="9552476137" required>
+            </div>
+            <button type="submit" class="btn-submit">Send OTP</button>
+        </form>
+        {% endif %}
+
+        {% if step == 'verify_otp' %}
+        <form action="/verify-otp" method="POST">
+            <div class="form-group">
+                <label>OTP टाका</label>
+                <input type="text" name="otp" placeholder="४ अंकी OTP टाका" required>
+            </div>
+            <div class="form-group">
+                <label>नवीन पासवर्ड (New Password)</label>
+                <input type="password" name="new_password" placeholder="नवीन पासवर्ड टाका" required>
+            </div>
+            <button type="submit" class="btn-submit">Reset Password</button>
+        </form>
+        {% endif %}
+
+        <br>
+        <a href="/" style="color: #007bff; text-decoration: none;">मागे जा (Back to Login)</a>
+    </div>
+
+</body>
+</html>
